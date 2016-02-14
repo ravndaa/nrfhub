@@ -1,5 +1,5 @@
 var mqtt    = require('mqtt');
-var client  = mqtt.connect('mqtt://config.re',{
+var client  = mqtt.connect('mqtt://localhost',{
         clientId:'Kongen'
     });
 
