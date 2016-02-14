@@ -1,15 +1,15 @@
-CFLAGS=-Wall -ggdb -I../ -I/home/pi/libs/mosquitto-1.4.7/lib -I/home/pi/libs/mosquitto-1.4.7/lib/cpp
-LDFLAGS=-L/home/pi/libs/mosquitto-1.4.7/lib /home/pi/libs/mosquitto-1.4.7/lib/cpp/libmosquittopp.so.1 /home/pi/libs/mosquitto-1.4.7/lib/libmosquitto.so.1 -L/usr/lib -I/usr/include -lrf24-bcm
+CFLAGS=-Wall -ggdb -I./ -I./lib/mosquitto/ -I./lib/rf24/
+LDFLAGS=-L./lib/mosquitto-1.4.7/lib ./lib/mosquitto/libmosquittopp.so.1 ./lib/mosquitto/libmosquitto.so.1 ./lib/rf24/librf24-bcm.so.1.0
 
 
 .PHONY: all clean
 
-all : rfhub
+all : nrfhub
 
-rfhub : main.o temperature_conversion.o
+nrfhub : main.o temperature_conversion.o
 	${CXX} $^ -o $@ ${LDFLAGS}
 
-main.o : rfHub.cpp
+main.o : nrfhub.cpp
 	${CXX} -c $^ -o $@ ${CFLAGS}
 
 temperature_conversion.o : temperature_conversion.cpp

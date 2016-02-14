@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "./RF24.h"
+#include "lib/rf24/RF24.h"
 #include <vector>
 
 using namespace std;
