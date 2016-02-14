@@ -1,13 +1,38 @@
-
-#include "temperature_conversion.h"
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include "lib/rf24/RF24.h"
 #include <vector>
+#include <mosquittopp.h>
 
 using namespace std;
+
+class mqtt_tempconv : public mosqpp::mosquittopp
+{
+	public:
+		mqtt_tempconv(const char *id, const char *host, int port) : mosquittopp(id)
+{
+	int keepalive = 60;
+
+	/* Connect immediately. This could also be done by calling
+	 * mqtt_tempconv->connect(). */
+	connect(host, port, keepalive);
+};
+
+~mqtt_tempconv()
+{
+}
+
+void on_connect(int rc)
+{
+	printf("Connected with code %d.\n", rc);
+	if(rc == 0){
+		/* Only attempt to subscribe on a successful connect. */
+		subscribe(NULL, "temperature/celsius");
+	}
+}
+};
 
 // Setup for GPIO 15 CE and CE0 CSN with SPI Speed @ 8Mhz
 RF24 radio(RPI_V2_GPIO_P1_15, RPI_V2_GPIO_P1_24, BCM2835_SPI_SPEED_8MHZ);
@@ -93,5 +118,12 @@ mosqpp::lib_cleanup();
 
 return 0;
 }
+
+
+
+
+
+
+
 
 
