@@ -36,17 +36,13 @@ const int max_payload_size = 32;
 //  Sensor ID
 //
 
-#define RTCPOWER_PIN 5 
-
-const String sensorId = "03";
+const String sensorId = "02";
 char receive_payload[max_payload_size + 1]; // +1 to allow room for a terminating NULL char
 
 void setup(void)
 {
 
-  digitalWrite(RTCPOWER_PIN, HIGH);      // about to generate I2C traffic
-  pinMode (RTCPOWER_PIN, OUTPUT);    // so provide power to the RTC
-
+  
   Serial.begin(115200);
   Serial.println(F("Temprature Sensor"));
 
@@ -123,15 +119,10 @@ void loop(void)
 
 void sleep()
 {
-      pinMode (RTCPOWER_PIN, INPUT);
-      digitalWrite(RTCPOWER_PIN, LOW);
-      
       attachInterrupt(digitalPinToInterrupt(2), wakeUp, LOW);    
       LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
       detachInterrupt(digitalPinToInterrupt(2));
       
-      digitalWrite(RTCPOWER_PIN, HIGH);      // about to generate I2C traffic
-      pinMode (RTCPOWER_PIN, OUTPUT);    // so provide power to the RTC
 }
 
 int readTemp()

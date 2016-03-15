@@ -22,23 +22,39 @@ void wakeUp()
 RF24 radio(7, 8);
 
 
-// Radio pipe addresses for the 2 nodes to communicate.
-const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D3LL };
+// Radio pipe addresses for the 2 nodes to communicate. const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D3LL };
+const uint64_t pipes[2] = { 0xF0F0F0F0E1LL };
 
 //
 // Payload
 //
 
 const int min_payload_size = 4;
-const int max_payload_size = 32;
+const int max_payload_size = 30;
+
+//
+// Payload Structure
+//
+
+typedef struct {
+  int ID;
+  int batteryLevel;
+  bool hasTemprature;
+  int tempratureValue;
+  //bool hashumidity;
+  //int humidityValue;
+
+} Payload;
 
 //
 //  Sensor ID
 //
 
-#define RTCPOWER_PIN 5 
+const String sensorId = "5";
 
-const String sensorId = "03";
+
+#define RTCPOWER_PIN 9 
+
 char receive_payload[max_payload_size + 1]; // +1 to allow room for a terminating NULL char
 
 void setup(void)
@@ -58,8 +74,8 @@ void setup(void)
 
   pinMode(wakeUpPin, INPUT_PULLUP);
   //RTC.squareWave(SQWAVE_NONE); 
-  //RTC.setAlarm(ALM2_MATCH_MINUTES, 0, 30, 0, 0);    //Every hour when minutes is 30
-  RTC.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 1, 0);    //Every minute
+  RTC.setAlarm(ALM2_MATCH_MINUTES, 0, 30, 0, 0);    //Every hour when minutes is 30
+  //RTC.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 1, 0);    //Every minute
   RTC.alarm(ALARM_2);                   //ensure RTC interrupt flag is cleared
   RTC.alarmInterrupt(ALARM_1, false);
   RTC.alarmInterrupt(ALARM_2, true);
@@ -69,6 +85,8 @@ void setup(void)
   // enable dynamic payloads
   radio.enableDynamicPayloads();
   radio.setPALevel(RF24_PA_MAX);
+  radio.setDataRate(RF24_250KBPS);
+  radio.setChannel(108);
 
   // optionally, increase the delay between retries & # of retries
   //radio.setRetries(0, 0);
@@ -76,7 +94,10 @@ void setup(void)
   radio.openWritingPipe(pipes[0]);
 
 
-  attachInterrupt(0, wakeUp, LOW); 
+  attachInterrupt(0, wakeUp, LOW);
+
+   digitalWrite(RTCPOWER_PIN, LOW);      // about to generate I2C traffic
+  pinMode (RTCPOWER_PIN, INPUT);    // so provide power to the RTC
 
   Serial.println("Setup Done");
   delay(1000);
@@ -93,25 +114,18 @@ void loop(void)
         
         radio.powerUp();
         radio.stopListening();
-  
-        //String str = "/Sensor/" + sensorId + "," + readTemp() + "+" + readVcc();
-        String str = "/Sensor/" + sensorId + "," + readTemp() + "+" + readVcc();
-        Serial.println(str);
-        // Length (with one extra character for the null terminator)
-        int str_len = str.length() + 1;
-  
-        // Prepare the character array (the buffer)
-        char char_array[str_len];
-  
-        // Copy it over
-        str.toCharArray(char_array, str_len);
-  
-        // Take the time, and send it.  This will block until complete
-        Serial.print(F("Now sending length: "));
-        Serial.println( sizeof(char_array) );
-  
-        radio.write( char_array, sizeof(char_array) );
-  
+
+        Payload minData;
+
+        minData.ID = 5;
+        minData.tempratureValue = readTemp();
+        minData.batteryLevel = readVcc();
+        minData.hasTemprature = true;
+        //minData.hashumidity = false;
+        //minData.humidityValue = 45;
+
+        radio.write( &minData, sizeof(minData) );
+        
         Serial.println("Data Sent");
 
         radio.powerDown();

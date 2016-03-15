@@ -1,0 +1,22 @@
+{
+  "name": "nrfhub2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "azure-iot-device-mqtt": "^1.0.1",
+    "azure-iothub": "^1.0.1",
+    "binary-parser": "^1.1.5",
+    "fifolock": "^1.0.0",
+    "jstructs": "^0.1.1",
+    "nrf": "^0.8.3",
+    "pi-pins": "^1.0.0",
+    "pi-spi": "^1.0.0",
+    "queue-async": "~1.0.4"
+  }
+}
